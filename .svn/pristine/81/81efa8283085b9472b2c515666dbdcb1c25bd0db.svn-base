@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<script type="text/javascript" src="../lib/crafty.js"></script>
+	<script type="text/javascript" src="snake.js"></script>
+
+	<title> </title>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,187 @@
+/**
+ * @author Weston
+ */
+
+
+
+var CALIFORNIA;
+var NORTH_WEST;
+var SOUTH_WEST;
+var NORTH_ROCKIES;
+var NORTH_CENTRAL;
+var CENTRAL;
+var SOUTH_CENTRAL;
+var NORTH_EAST;
+var EAST;
+var SOUTH_EAST;
+CALIFORNIA[0,NORTH_WEST, SOUTH_WEST];
+NORTH_WEST[0, CALIFORNIA, SOUTH_WEST, NORTH_ROCKIES];
+SOUTH_WEST[0, NORTH_WEST, CALIFORNIA, NORTH_ROCKIES, CENTRAL, SOUTH_CENTRAL];
+NORTH_ROCKIES[0, NORTH_WEST, SOUTH_WEST, CENTRAL, NORTH_CENTRAL];
+NORTH_CENTRAL[0, NORTH_ROCKIES, CENTRAL];
+CENTRAL[0, NORTH_CENTRAL, NORTH_ROCKIES, SOUTH_WEST, SOUTH_CENTRAL, EAST];
+SOUTH_CENTRAL[0, CENTRAL, SOUTH_WEST, EAST, SOUTH_EAST];
+SOUTH_EAST[0, SOUTH_CENTRAL, EAST];
+EAST[0, SOUTH_EAST,CENTRAL, SOUTH_CENTRAL, NORTH_EAST];
+NORTH_EAST[0, EAST];
+//0 index is the infection level
+//0 is uninfected, 1 is infected, 2 is fairly infected, 3 is contagious, -1 is invulnerable
+var AREAS = [CALIFORNIA, NORTH_WEST, SOUTH_WEST, NORTH_ROCKIES, NORTH_CENTRAL, CENTRAL, SOUTH_CENTRAL, NORTH_EAST, EAST, SOUTH_EAST];
+var NEW_GAME = true;
+
+
+function initialize_map(){
+    Crafty.init(500,500);
+    Crafty.background("AliceBlue");
+    Crafty.scene("map");
+}
+
+Crafty.scene("map", function(){
+   
+   
+   function init(){
+       
+       NEW_GAME=false;
+       for(var i=0; i<AREAS.length; i++){
+           
+           var tmp = AREAS[i];
+           tmp[0]=0;
+           //initialize all areas to uninfected
+       }
+       //refer to a random AREA element and set it to contagious
+       var tmp = Crafty.math.randomElementOfArray(AREAS);
+       tmp[0] = 3;
+       if(tmp.length>=4){
+           //create random to choose if you want three greens or two yellows, randomNum 1 means two yellows
+           var randomNum = Crafty.math.randomInt(1,2);
+           if(randomNum==1){
+               var i=0;
+               while(i!=2){
+                   var randomConnection = Crafty.math.randomInt(1,tmp.length-1);
+                   var tmpConnection = tmp[randomConnection];
+                   if(tmpConnection[0]!=0) continue;
+                   tmpConnection[0]=2;
+                   i++;
+               }
+                
+           }
+           else{//randomNum is 2
+               var i=0;
+               while(i!=3){
+                   var randomConnection = Crafty.math.randomInt(1,tmp.length-1);
+                   var tmpConnection = tmp[randomConnection];
+                   if(tmpConnection[0]!=0) continue;
+                   tmpConnection[0]=1;
+                   i++;
+               }
+               
+           }
+       }
+       if(tmp.length==3){
+           //Create random to choose if you want two yellows or one green and one red, 1 is two yellows
+           var randomNum = Crafty.math.randomInt(1,2);
+           if(randomNum==1){
+               
+               for(var i=1; i<3;i++){
+                   var tmpConnection = tmp[i];
+                   tmpConnection[0]=2;
+               }
+                
+           }
+           else{//randomNum is 2
+               var i=0;
+               while(i!=3){
+                   var randomConnection = Crafty.math.randomInt(1,2);
+                   
+                   if(randomConnection==1){//make first connection infectious
+                       var tmpConnection = tmp[1];
+                       var tmpConnection2 = tmp[2];
+                       tmpConnection[0]=3;
+                       tmpConnection2[0]=1;
+                   }
+                   else{//randomConnection is 2, make second connection infectious
+                       var tmpConnection = tmp[2];
+                       var tmpConnection2 = tmp[1];
+                       tmpConnection[0]=3;
+                       tmpConnection2[0]=1;
+                   }
+               }
+           }
+       }
+       else{//North east
+          var randomNum = Crafty.math.randomInt(1,2);
+          if(randomNum==1){//three greens
+              var randomSituation = Crafty.math.randomInt(1,2);
+              if(randomSituation==1){//East, Central and South East are infected dawg
+                  EAST[0]=SOUTH_EAST[0]=CENTRAL[0]=1;
+              }
+              else{//randomSit is 2, East, Central, and North Central are infected yo
+                  EAST[0]=NORTH_CENTRAL[0]=CENTRAL[0]=1;
+              }
+          }
+          else{//random is 2, two yellows
+              var randomSituation = Crafty.math.randomInt(1,2);
+              if(randomSituation==1){//East and Central infected dawg
+                  EAST[0]=CENTRAL[0]=2;
+              }
+              else{//randomSit is 2, East, Central, and North Central are infected yo
+                  EAST[0]=SOUTH_EAST[0]=1;
+              }
+          }
+       }
+       
+   }
+   
+   
+   
+   
+   
+   
+   
+   
+   function progress(currentArea, justWon){//currentArea is the area you were just playing in, justWon is if you won the level or not
+       
+       for(var j=0;j<AREAS.length;j++){//loops through all sickly areas and either progresses them or has them infect others
+           if(AREAS[j]!=currentArea){
+               var tmp = AREAS[j];
+               if(tmp[0]==3) infect(tmp, 3);//30 percent chance of infecting
+               else if(tmp[0]==1||tmp[0==2]){
+                  var randomSituation = Crafty.math.randomInt(1,3);//33 percent chance of progressing
+                  if(randomSituation==1) tmp[0]++;
+               }
+           }
+       }
+       //Checking if you won after so that if you did the area just healed wont by chance become green from the random choice
+       if(justWon) currentArea[0]=0;
+       else{
+           if(currentArea[0]==3)infect(currentArea, 10);
+           else currentArea[0]++;
+       }
+   }
+   
+   
+   
+   
+   
+   function infect(area, likelihood){//area is infectious area that is infecting, likelihood is 1-10 that defines likelihood of infecting
+       for(var i=1;i<area.length;i++){
+           var randomSituation = Crafty.math.randomInt(1,10);
+           if(randomSituation<=likelihood){
+               var tmpConnection = area[i];
+               if(tmpConnection[0]==0) tmpConnection[0]=1;
+           }
+       }
+   }
+   
+   
+   
+   
+   
+   
+   if(NEW_GAME) init();
+   
+   
+   
+    
+    
+});

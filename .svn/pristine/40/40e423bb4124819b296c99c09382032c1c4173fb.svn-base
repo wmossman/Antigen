@@ -1,0 +1,40 @@
+Here are some simple rules that I think we should follow to make the game 
+code better, cleaner and easier to read.
+This team is a democracy and it's not up to me to impose rules, so all of 
+them are 100% open to discussion - these are just some basic idioms that 
+IMHO, will make everything run more smoothly. 
+-Ben
+
+1. When Crafty provides functionality which could be replicated with pure
+ Javascript, USE CRAFTY. Even the functions which are basically just wrappers
+  for Javascript functions often have a bit of extra dynamic functionality built
+   in. For example: the Crafty function this.delay() is basically just a wrapper
+    for Javascript's setTimeout/setInterval functions. However, they are built to
+     work with Crafty's Crafty.pause() function (the delay pauses when the game is paused),
+      while setInterval() is not.
+
+2. Give all scenes, functions, and variables names which reflect what they actually
+ do (this should be common sense for programming ANYTHING). We should use consistent
+  capitalization and naming idioms across all game code. Suggested: Function and
+   variable names are in camelCase, global constant variables should be in ALL_CAPS_WITH_UNDERSCORES,
+    scene names are in lowercase_with_underscores.
+
+3. Comment everything. Comment everything. Comment everything. Do it AS YOU WRITE, not
+ after the whole file is done being written. This rule is targeted at ME more than anyone
+  else, cause I'm a frequent offender.
+
+4. Use proper indentation. Put spaces between logically separate blocks of code. Break
+ things down into functions instead of rewriting blocks. Use wrapper functions where logical.
+  Basically, what I'm saying is, do whatever you can to make the code as easy to read as possible! 
+
+5. Use global variables instead of magic numbers. E.G. if your code references the width
+ of the screen, make a global variable SCREEN_WIDTH instead of just copy/pasting the numerical
+  width into your code. That way, the code can be edited by changing one line, instead of
+   hunting through the code looking for every location of the integer value. Also improves readibility.
+
+6. The final version of the game code will all be baked into one file to make loading faster.
+ However, during development, we should break things down into different files to makes everything
+  easier to find. Currently (2/3/2014) all the game code currently written is in game.js. However,
+   as the game code is fleshed out, I think there should be a separate file for all the puzzle scenes
+    (as there will be several), for the pattern checking algorithm, for the CSS, for the game settings,
+     for the overworld map, and for miscellaneous other functionality (if any).

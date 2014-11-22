@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+<!--	<link rel="stylesheet" type="text/css" href="gamestyle.css"> -->
+<!--	<script type="text/javascript" src="../lib/js/jquery-1.10.2.min.js"></script>-->
+	<script type="text/javascript" src="../lib/crafty.js"></script>
+	<script type="text/javascript" src="game.js"></script>
+	<script type="text/javascript" src="scenes.js"></script>
+
+	<title> </title>
+</head>
+<body></body>
+</html>

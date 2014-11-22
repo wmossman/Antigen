@@ -1,0 +1,31 @@
+#score_time {
+	border: green 3px solid;
+	height: 150px;
+	width: 200px;
+	padding: 5px;
+	float: left;
+	background-color: #66ff66;
+	margin: 0px 5px 0px 5px;
+	border-radius: 5px;
+}
+
+#grid {
+	border: red 3px solid;
+	height: 400px;
+	width: 600px;
+	margin-bottom: 5px;
+	padding: 5px;
+	background-color: #ff6633;
+	border-radius: 5px;
+}
+
+#patterns {
+	border: blue 3px solid;
+	height: 150px;
+	width: 360px;
+	float: left;
+	padding: 5px;
+	background-color: #99ccff;
+	margin-left: 10px;
+	border-radius: 5px;
+}

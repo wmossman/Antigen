@@ -1,0 +1,53 @@
+var CALIFORNIA;
+var NORTH_WEST;
+var SOUTH_WEST;
+var NORTH_ROCKIES;
+var NORTH_CENTRAL;
+var CENTRAL;
+var SOUTH_CENTRAL;
+var NORTH_EAST;
+var EAST;
+var SOUTH_EAST;
+var AREAS;
+var CURRENT_AREA = CALIFORNIA;
+var NEW_GAME = true;
+var JUST_WON = false;
+
+window.onload = function(){
+/****Initialize the Crafty Window *****/ 
+	Crafty.init (800,600);
+	Crafty.background("AliceBlue");
+	
+	//initWorld returns the AREAS array, with pointers to the other region variables
+	//in other files, access AREAS
+	function initWorld(){
+
+		//Initialize all the variables first so they can point to each other
+
+
+		//Create arrays for each variable with pointers to the other variables
+		CALIFORNIA = [0,NORTH_WEST, SOUTH_WEST];
+		NORTH_WEST = [0, CALIFORNIA, SOUTH_WEST, NORTH_ROCKIES];
+		SOUTH_WEST = [0, NORTH_WEST, CALIFORNIA, NORTH_ROCKIES, CENTRAL, SOUTH_CENTRAL];
+		NORTH_ROCKIES = [0, NORTH_WEST, SOUTH_WEST, CENTRAL, NORTH_CENTRAL];
+		NORTH_CENTRAL = [0, NORTH_ROCKIES, CENTRAL];
+		CENTRAL = [0, NORTH_CENTRAL, NORTH_ROCKIES, SOUTH_WEST, SOUTH_CENTRAL, EAST];
+		SOUTH_CENTRAL = [0, CENTRAL, SOUTH_WEST, EAST, SOUTH_EAST];
+		SOUTH_EAST = [0, SOUTH_CENTRAL, EAST];
+		EAST = [0, SOUTH_EAST,CENTRAL, SOUTH_CENTRAL, NORTH_EAST];
+		NORTH_EAST = [0, EAST];
+		//0 index is the infection level
+		//0 is uninfected, 1 is infected, 2 is fairly infected, 3 is contagious, -1 is invulnerable
+
+		//AREAS is an array containing all the other areas
+		AREAS = [CALIFORNIA, NORTH_WEST, SOUTH_WEST, NORTH_ROCKIES, 
+			NORTH_CENTRAL, CENTRAL, SOUTH_CENTRAL, NORTH_EAST, EAST, SOUTH_EAST];
+		
+	}
+	console.log("past initworld function declaration");
+	initWorld();
+	Crafty.scene("puzzle");
+	
+	
+};
+

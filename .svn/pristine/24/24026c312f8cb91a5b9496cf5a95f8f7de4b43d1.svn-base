@@ -1,0 +1,77 @@
+window.onload = function(){
+/****Initialize the Crafty Window *****/ 
+	Crafty.init (952,600);
+	Crafty.background('#196EFC');
+	
+	function initSounds(){
+        Crafty.audio.add("shiftForward", "../assets/Sound_Effects/shift_1.wav");
+        Crafty.audio.add("shiftBack", "../assets/Sound_Effects/shift_2.wav");
+        Crafty.audio.add("puzzleWin", "../assets/Sound_Effects/puzzle_win.wav");
+        Crafty.audio.add("puzzleFail", "../assets/Sound_Effects/riser_hit.wav");
+        Crafty.audio.add("mapLoop", "../assets/Sound_Effects/map_loop.wav");
+        Crafty.audio.add("patternMatched", "../assets/Sound_Effects/matched.wav");
+        Crafty.audio.add("endPuzzle", "../assets/Sound_Effects/end_puzzle.wav");
+        Crafty.audio.add("endPuzzle2", "../assets/Sound_Effects/end_puzzle_2.wav");
+        Crafty.audio.add("menuFX", "../assets/Sound_Effects/pop.wav");
+        Crafty.audio.add("cannotEnter", "../assets/Sound_Effects/cannot_enter.wav");
+        Crafty.audio.add("mapShift", "../assets/Sound_Effects/Traversal_sound.wav");
+        Crafty.audio.add("easyPuzzleTune", "../assets/Sound_Effects/96_degrees.mp3");
+        Crafty.audio.add("medPuzzleTune", "../assets/Sound_Effects/with_you_without_you.mp3");
+        Crafty.audio.add("gameLossSfx", "../assets/Sound_Effects/Sad-Trombone.mp3");
+    }
+
+    //initWorld returns the AREAS array, with pointers to the other region variables
+	//in other files, access AREAS
+	function initWorld(){
+
+		//Initialize all the variables first so they can point to each other
+        CALIFORNIA = [0];   
+        NORTH_WEST = [0];   
+        SOUTH_WEST = [0];   
+        NORTH_ROCKIES = [0];    
+        NORTH_CENTRAL = [0];    
+        CENTRAL = [0];  
+        SOUTH_CENTRAL = [0];    
+        SOUTH_EAST = [0];   
+        EAST = [0]; 
+        NORTH_EAST = [0];	
+		
+		//push apparently can do mutiple elements
+        CALIFORNIA.push(NORTH_WEST, SOUTH_WEST);
+        CALIFORNIA.name="California";
+        NORTH_WEST.push(CALIFORNIA, SOUTH_WEST, NORTH_ROCKIES);
+        NORTH_WEST.name="North_West";
+        SOUTH_WEST.push(NORTH_WEST, CALIFORNIA, NORTH_ROCKIES, CENTRAL, SOUTH_CENTRAL);
+        SOUTH_WEST.name="South_West";
+        NORTH_ROCKIES.push(NORTH_WEST, SOUTH_WEST, CENTRAL, NORTH_CENTRAL);
+        NORTH_ROCKIES.name="North_Rockies";
+        NORTH_CENTRAL.push(NORTH_ROCKIES, CENTRAL);
+        NORTH_CENTRAL.name="North_Central";
+        
+        CENTRAL.push(NORTH_CENTRAL, NORTH_ROCKIES, SOUTH_WEST, SOUTH_CENTRAL, EAST);
+        CENTRAL.name="Central";
+        SOUTH_CENTRAL.push(CENTRAL, SOUTH_WEST, EAST, SOUTH_EAST);
+        SOUTH_CENTRAL.name="South_Central";
+        SOUTH_EAST.push(SOUTH_CENTRAL, EAST);
+        SOUTH_EAST.name="South_East";
+        EAST.push(SOUTH_EAST,CENTRAL, SOUTH_CENTRAL, NORTH_EAST);
+        EAST.name="East";
+        NORTH_EAST.push(EAST);	
+        NORTH_EAST.name="North_East";
+        CURRENT_AREA = CALIFORNIA;
+        // %o - object, %s - string, %i - integer, %c formatting, %f float
+        console.log("right after declaration california is %s %o", CALIFORNIA.name , CALIFORNIA); 
+
+        //0 index is the infection level
+		//0 is uninfected, 1 is infected, 2 is fairly infected, 3 is contagious, -1 is invulnerable
+
+		//AREAS is an array containing all the other areas
+        AREAS = [CALIFORNIA, NORTH_WEST, SOUTH_WEST, NORTH_ROCKIES, 
+            NORTH_CENTRAL, CENTRAL, SOUTH_CENTRAL, NORTH_EAST, EAST, SOUTH_EAST];
+	}
+    initSounds();
+	initWorld();
+    initImages();
+    Crafty.scene("main_menu");
+};
+

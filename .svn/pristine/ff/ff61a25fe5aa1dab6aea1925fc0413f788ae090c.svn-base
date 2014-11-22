@@ -1,0 +1,17 @@
+/**
+ * @author Weston
+ */
+
+
+
+var CALIFORNIA = [];
+var NORTH_WEST = [];
+var SOUTH_WEST = [];
+var NORTH_ROCKIES = [];
+var NORTH_CENTRAL = [];
+var CENTRAL = [];
+var SOUTH_CENTRAL = [];
+var NORTH_EAST = [];
+var EAST = [];
+var SOUTH_EAST = [];
+

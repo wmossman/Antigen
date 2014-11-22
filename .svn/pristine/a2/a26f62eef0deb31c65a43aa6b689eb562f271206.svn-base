@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+<!--	<link rel="stylesheet" type="text/css" href="gamestyle.css"> -->
+<!--	<script type="text/javascript" src="../lib/js/jquery-1.10.2.min.js"></script>  -->
+	<script type="text/javascript" src="../lib/crafty.js"></script>
+	<script type="text/javascript">
+		var CALIFORNIA;
+		var NORTH_WEST;
+		var SOUTH_WEST;
+		var NORTH_ROCKIES;
+		var NORTH_CENTRAL;
+		var CENTRAL;
+		var SOUTH_CENTRAL;
+		var NORTH_EAST;
+		var EAST;
+		var SOUTH_EAST;
+		var AREAS;
+		var CURRENT_AREA;
+		var NEW_GAME = true;
+		var JUST_WON = false;
+		var JUST_LOADED = false;
+		var SFX_VOL = 1.0;
+		var OST_VOL = 1.0;
+		var EASY_SOLVED = 0;
+		var MED_SOLVED = 0;
+		var HARD_SOLVED = 0;
+		var MATCHED = 0;
+
+		var imgPath = "../assets/";
+		var audioPath = "../assets/Sound_Effects/";
+		
+	</script>
+	<script type="text/javascript" src="game.js"></script>
+	<script type="text/javascript" src="scenes.js"></script>
+	<script type="text/javascript" src="utils.js"></script>
+
+
+	<title> </title>
+</head>
+<body></body>
+</html>

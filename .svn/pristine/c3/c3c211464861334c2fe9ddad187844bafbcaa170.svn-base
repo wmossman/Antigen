@@ -1,0 +1,666 @@
+Crafty.scene("how_to_play", function(){
+
+
+   //Initialize 3 areas to infected
+   CALIFORNIA[0] = 3;
+   CENTRAL[0] = 2;
+   NORTH_CENTRAL[0] = 1;
+   NORTH_EAST[0] = 0;
+   EAST[0] = 0;
+   updateMap();
+
+   var messageArray = new Array();
+   var p = 0;  //keep track of what message
+   messageArray[0] = "Greetings, Agent.  The U.S. has been infected with a deadly virus that you must cure.  Press Enter to continue";
+   messageArray[1] = "Blue areas are uninfected, Yellow areas are infected, and Red areas are contagiously infected. Press Enter to continue";
+   messageArray[2] = "Use the Arrow Keys to navigate to an area and use the Space key to enter an area. Do this now."
+   messageArray[3] = "Solve puzzles by moving columns up or down, or rows left to right.  Let's start with rows.  Press Enter to continue";
+   messageArray[4] = "Use the arrow keys to move the row selector up and down, and blocks left to right. Press Space to confirm your move. Solve the puzzle.";
+   messageArray[5] = "Good.  Use A and D to move the column selector up and down, and W and S to move blocks left to right.  Solve the puzzle.";
+   messageArray[6] = "Great. You're now ready for the real thing. Press Enter to go to the Main Menu. ";
+
+      var manager = Crafty.e("manager, 2D");
+      manager.bind('KeyDown', function(e) {
+      if (e.key == Crafty.keys['D']||e.key == Crafty.keys['RIGHT_ARROW']) {
+        traverse("East");
+        updateMap();
+      }
+
+      else if (e.key == Crafty.keys['W']||e.key == Crafty.keys['UP_ARROW']) {
+        traverse("North");
+        updateMap();
+      }
+
+      else if (e.key == Crafty.keys['A']||e.key == Crafty.keys['LEFT_ARROW']) {
+        traverse("West");
+        updateMap();
+      }
+
+      else if (e.key == Crafty.keys['S']||e.key == Crafty.keys['DOWN_ARROW']){
+        traverse("South");
+        updateMap();
+      }
+
+      else if (e.key == Crafty.keys['SPACE']){
+        if (p == 2) {
+            p++;
+            puzzle_tutorial();
+        }
+      }
+
+      else if (e.key == Crafty.keys['ENTER']){
+        p++;
+        //Call puzzle tutorial function
+        if (p == 3) {
+           p--;
+        }
+        displayMessage(messageArray[p]);
+      }
+
+   });
+       
+
+   function displayMessage(message) {
+      Crafty("message").each(function(){this.destroy();})
+      var cycles = message.length;
+      var x = 0;
+      var q = 0;
+      var time = 40;
+      var chardelay = false;
+      var currText = message.charAt(0);
+      var i = 1;
+
+      mes = Crafty.e("2D, DOM, Text, Delay, message")
+      .attr({x:5, y:5, z:1, w: 800, h: 30})
+      .textFont({size: '12.5px'})
+      .text(currText);
+      .delay(function() {
+          currText += message.charAt(i);
+          this.text(currText);
+          i++;
+      }, time, cycles);
+
+   }
+   displayMessage(messageArray[p]); 
+
+   function puzzle_tutorial(){
+
+      Crafty("map").each(function(){this.destroy();})
+      Crafty("overlay").each(function(){this.destroy();})
+      Crafty("manager").each(function(){this.destroy();})
+
+      var SIZE = 10;
+
+      var grid = new Array(SIZE);
+      for(var i = 0; i<SIZE; i++) {
+        grid[i] = new Array(SIZE);
+      }
+
+      var playerTurn = 1;
+      var goal = 1;
+
+      for(var a = 0; a < 8; a++){
+        for(var b = 0; b < SIZE; b++){       
+            grid[a][b] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+                .attr({x: (b+1)*50, y: (a+1)*50, h: 49, w: 49, z: 10, alpha: 1.0})
+                .css("border", "1px solid black") 
+                .color("red");
+                
+        }
+      } 
+ 
+      //set the grid to an easy puzzle to solve for ROWS
+      grid[8][0] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+           .attr({x: 50, y: 450, h: 49, w: 49, z: 10, alpha: 1.0})
+           .css("border", "1px solid black") 
+           .color("red");  
+      grid[8][1] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+           .attr({x: 100, y: 450, h:49, w:49, z:10, alpha: 1.0 })
+           .css("border", "1px solid black")
+           .color("blue"); 
+      grid[8][2] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+           .attr({x: 150, y: 450, h:49, w:49, z:10, alpha: 1.0 })
+           .css("border", "1px solid black")
+           .color("blue"); 
+
+      for (var c = 8; c < 9; c++) {
+        for (var d = 3; d < SIZE; d++) {
+                grid[c][d] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+                .attr({x: (d+1)*50, y: (c+1)*50, h: 49, w: 49, z: 10, alpha: 1.0})
+                .css("border", "1px solid black") 
+                .color("red");           
+        }
+      } 
+      grid[9][0] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+           .attr({x: 50, y: 500, h:49, w:49, z:10, alpha: 1.0 })
+           .css("border", "1px solid black")
+           .color("blue");       
+      grid[9][1] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+           .attr({x: 100, y: 500, h:49, w:49, z:10, alpha: 1.0 })
+           .css("border", "1px solid black")
+           .color("blue");
+
+      for (var c = 9; c < SIZE; c++) {
+        for (var d = 2; d < SIZE; d++) {
+                grid[d][c] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+                .attr({x: (d+1)*50, y: (c+1)*50, h: 49, w: 49, z: 10, alpha: 1.0})
+                .css("border", "1px solid black") 
+                .color("red");           
+        }
+      }
+
+      var pattern = [["blue", "blue"],  // * *
+                   ["blue", "blue"]];   // * * 
+        pattern.first = 0;
+        pattern.t_type = "blue"; 
+      
+      Crafty("pattern").each(function(){this.destroy();})
+      for(var a = 0; a < pattern.length; a++){
+         for(var b = 0; b < pattern[0].length; b++){
+            if(pattern[a][b] != 0){
+                Crafty.e("2D, DOM, Color, pattern")
+                    .attr({x: 630+b*33, y: 250+a*33, w:32, h:32})
+                    .css("border", "1px solid black")
+                    .color(pattern[a][b]);
+            }
+         }
+      }
+
+      displayMessage(messageArray[p]);
+
+
+        Crafty.e("2D, DOM, Text")
+         .attr({x:634, y:50, w:100, h:50})
+         .text("You must match:");
+
+        Crafty.e("2D, DOM, Text")
+         .attr({x:660, y:70, w:50, h:50})
+         .textFont({size: '40px'})
+         .text(function(){ return goal; });
+
+        Crafty.e("2D, DOM, Text")
+         .attr({x:650, y:120, w:100, h:50})
+         .text("Matched:");
+
+        Crafty.e("2D, DOM, Text")//Prompts the player with the next shape to match
+         .attr({x:650, y: 220, w:70, h:50})
+         .text("Match This:");
+
+     var player1 = Crafty.e("2D, DOM, Color, player1")
+     .attr({x: 46, y: 50, h: 45, w:(50*SIZE)-2, z:11})
+     .css("border", "5px solid black");
+
+    player1.row = 1;
+
+    //if > 0, has been shifted right
+    // if < 0, has been shifted left
+    var p1shifted = 0;
+
+    player1.bind('KeyDown', function(e) {
+        if (e.key == Crafty.keys['UP_ARROW'] && playerTurn == 1) {
+            if(p1shifted > 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowLeft(player1.row, distance);
+                p1shifted = 0;
+            }
+            else if(p1shifted < 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowRight(player1.row, distance);
+                p1shifted = 0;
+            }
+
+            player1.row--;
+            player1.shift(0,-50,0,0);
+            if(player1.y < 50) { 
+                player1.y = 50*SIZE;
+                player1.row = 10; 
+            }
+        } 
+        else if (e.key == Crafty.keys['DOWN_ARROW'] && playerTurn == 1) {
+            if(p1shifted > 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowLeft(player1.row, distance);
+                p1shifted = 0;
+            }
+            else if(p1shifted < 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowRight(player1.row, distance);
+                p1shifted = 0;
+            }
+
+            player1.row++;
+            player1.shift(0,50,0,0);
+            if(player1.y > 50*SIZE) { 
+                player1.y = 50; 
+                player1.row = 1;
+            }
+        }
+        else if (e.key == Crafty.keys['LEFT_ARROW'] && playerTurn == 1){
+            p1shifted--;
+            if(p1shifted <= -SIZE) p1shifted = 0;
+            shiftRowLeft(player1.row, 1);
+        }
+        else if (e.key == Crafty.keys['RIGHT_ARROW'] && playerTurn == 1){
+            p1shifted++;
+            if(p1shifted >= SIZE) p1shifted = 0;
+            shiftRowRight(player1.row, 1);
+        }
+        else if (e.key == Crafty.keys['SPACE'] && playerTurn == 1){
+          if (p > 3) {
+            shiftArrayRow(player1.row-1, p1shifted); //player1.row is player 1 grid coordinate +1
+            p1shifted = 0;
+            var check = checkGrid(grid, pattern, SIZE);
+            if(check[0] != -1 && check[1] != -1){
+             p++; //go to next message and now it's P2 turn
+             displayMessage(messageArray[p]);
+             patternMatched(check);
+            }
+            setTimeout(function(){
+               if(p % 2 == 1){ 
+                  playerTurn = 2;
+               }
+               else if (p % 2 == 0) {
+                  playerTurn = 1;
+               } }, 20); 
+          }else if(p <3){}
+        }
+        else if (e.key == Crafty.keys['ENTER'] && playerTurn == 1) {
+           if (p < 4) {
+              p++;
+              displayMessage(messageArray[p]);
+           }
+        }
+    });
+
+    var player2 = Crafty.e("2D, DOM, Color, player2")
+     .attr({x: 50, y: 46, h: (50*SIZE)-2, w:45, z:11})
+     .css("border", "5px solid black");
+
+    player2.col = 1; 
+
+    //if p2shifted < 0, col has been shifted up
+    // if p2shifted > 0, col has been shifted down
+    var p2shifted = 0;
+
+    player2.bind('KeyDown', function(e) {
+        if (e.key == Crafty.keys['D'] && playerTurn == 2) {
+            if(p2shifted > 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColUp(player2.col, distance);
+                p2shifted = 0;
+            }
+            else if(p2shifted < 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColDown(player2.col, distance);
+                p2shifted = 0;
+            }
+
+            player2.col++;
+            player2.shift(50,0,0,0);
+            if(player2.x > 50*SIZE) { 
+                player2.x = 50;
+                player2.col = 1;
+            }
+        } 
+        else if (e.key == Crafty.keys['A'] && playerTurn == 2) {
+            if(p2shifted > 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColUp(player2.col, distance);
+                p2shifted = 0;
+            }
+            else if(p2shifted < 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColDown(player2.col, distance);
+                p2shifted = 0;
+            }
+
+            player2.col--;
+            player2.shift(-50,0,0,0);
+            if(player2.x < 50) { 
+                player2.x = 50*SIZE; 
+                player2.col = 10;
+            }
+        }
+        else if (e.key == Crafty.keys['W'] && playerTurn == 2) {
+            p2shifted--;
+            if(p2shifted <= -SIZE) p2shifted = 0;
+            shiftColUp(player2.col, 1);
+        }
+        else if (e.key == Crafty.keys['S'] && playerTurn == 2){
+            p2shifted++;
+            if(p2shifted >= SIZE) p2shifted = 0;
+            shiftColDown(player2.col, 1);
+        }
+        else if (e.key == Crafty.keys['SPACE'] && playerTurn == 2){
+            shiftArrayCol(player2.col-1, p2shifted); //player2.col is grid coordinate of player2+1
+            setTimeout(function(){p2shifted = 0;});
+            var check = checkGrid(grid, pattern, SIZE);
+            if(check[0] != -1 && check[1] != -1){
+             p++;
+             patternMatched(check);
+            }
+            setTimeout(function(){
+             if (p % 2 == 1) displayMessage(messageArray[p]);
+             else if (p % 2 == 0) playerTurn = 2;
+              }, 20);
+
+        }
+        else if (e.key == Crafty.keys['ENTER'] && playerTurn == 2) {
+            if (p > 5) {
+                Crafty.scene("main_menu"); 
+            }
+        }
+
+    });
+
+    function shiftRowRight(row, distance){      
+        var rowCoordinate = row*50; //row*50 is the actual pixel coordinate of objects
+        var tiles = Crafty("gameTile"); //Get an array of every tile 
+        //for each tile in tiles[], check its coordinate and shift if it is 
+        // the same as rowCoordinate.
+        var curr;
+        for(var a = 0; a<SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr._y == rowCoordinate) { curr.shift(50*distance, 0, 0, 0); }
+            if(curr._x >= 50*(SIZE+1)) { curr.x -= 50*SIZE; }
+        }
+    }
+
+    function shiftRowLeft(row, distance){       
+        var rowCoordinate = row*50; 
+        var tiles = Crafty("gameTile");
+        var curr;   
+        for(var a = 0; a<SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr.y == rowCoordinate) { curr.shift(-50*distance, 0, 0, 0); }
+            if(curr.x < 50) { curr.x += 50*SIZE; }
+        }
+    }
+
+    function shiftColUp(col, distance){
+        var colCoordinate = col*50;
+        var tiles = Crafty("gameTile");
+        var curr;
+        for(var a = 0; a < SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr.x == colCoordinate) { curr.shift(0,-50*distance, 0, 0); }
+            if(curr.y < 50) { curr.y += 50*SIZE; }
+        }
+    }
+
+    function shiftColDown(col, distance){
+        var colCoordinate = col*50;
+        var tiles = Crafty("gameTile");
+        var curr;
+        for(var a = 0; a < SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr.x == colCoordinate) { curr.shift(0, 50*distance, 0, 0); }
+            if(curr.y >= 50*(SIZE+1)) { curr.y -= 50*SIZE; }
+        }
+    }
+
+
+    //Adjust grid[][] to keep it in sync with what's onscreen
+    //col is which column to shift
+    //distance is distance to shift.
+    //    negative values shift up, positive values shift down
+    function shiftArrayCol(col, distance){
+            //grid[curr+distance][col] = grid[curr][col]
+
+            //don't do any computation if nothing to compute
+            if(distance == 0) return;
+            console.log("distance: " + distance);
+
+            var dist = Crafty.math.abs(distance);
+            var temp = new Array(dist);
+            if(distance<0){
+                    //save the elements at the edge so we can put them on the other edge
+                    for(var a = 0; a < dist; a++)
+                            temp[a] = grid[a][col];
+                   
+                    //shift everything over
+                    for(var a = 0; a < (SIZE-dist); a++)
+                            grid[a][col] = grid[a+dist][col];
+                   
+                    //tack the temp back onto the end
+                    var init = SIZE-dist;
+                    for(var a = init; a < SIZE; a++)
+                            grid[a][col] = temp[a-init];
+            }
+            else{
+                    //save the edge elements
+                    for(var a = 0; a < dist; a++)
+                            temp[dist-a-1] = grid[SIZE-1-a][col];
+                   
+                    //shift over
+                    for(var a = 0; a < (SIZE-dist); a++)
+                            grid[SIZE-1-a][col] = grid[SIZE-1-a-dist][col];
+
+                    //tack the temp back on
+                    for(var a = 0; a < dist; a++)
+                            grid[a][col] = temp[a];
+            }
+        }
+
+    //Adjust grid[][] to keep it in sync with what's onscreen
+    //row is which row to shift
+    //distance is distance to shift.
+    //    negative values shift left, positive values shift right.,
+    function shiftArrayRow(row, distance){
+            // don't do any computation if nothing to compute
+            if(distance == 0) return;
+            console.log("distance: " + distance);
+
+            var dist = Crafty.math.abs(distance);
+            var temp = new Array(dist);
+            if(distance<0){
+                    //save the elements at the edge so we can put them on the other edge
+                    for(var a = 0; a < dist; a++)
+                            temp[a] = grid[row][a];
+                   
+                    //shift everything over
+                    for(var a = 0; a < (SIZE-dist); a++)
+                            grid[row][a] = grid[row][a+dist];
+                   
+                    //tack the temp back onto the end
+                    var init = SIZE-dist;
+                    for(var a = init; a < SIZE; a++)
+                            grid[row][a] = temp[a-init];
+            }
+            else{
+
+                    //save the edge elements
+                    for(var a = 0; a < dist; a++)
+                            temp[(dist-a)-1] = grid[row][SIZE-1-a];
+                   
+                    //shift over
+                    for(var a = 0; a < (10-dist); a++)
+                            grid[row][SIZE-1-a] = grid[row][SIZE-1-a-dist];
+
+                    //tack the temp back on
+                    for(var a = 0; a < dist; a++)
+                            grid[row][a] = temp[a];
+            }
+    }
+
+    //Input: coordinates of the bounding box of the pattern
+    //Result: Deletes the pattern in the grid and replaces with random elements.
+    //        Increments player score, updates the scoreboard, and gets a new pattern.
+    function patternMatched(coordinates){
+        
+        for(var a = coordinates[0]; a < pattern.length + coordinates[0]; a++){
+            for(var b = coordinates[1]; b < pattern[0].length + coordinates[1]; b++){
+                console.log("deleting: " + a + ", " + b);
+                //grid[a][b].tween({alpha: 0.0}, 100);
+                grid[a][b].color("red");
+                //grid[a][b].tween({alpha: 1.0}, 100);
+            }
+        }
+         if (p == 5) {
+            grid[8][1].color("blue");
+            grid[9][1].color("blue");
+            grid[7][0].color("blue");
+            grid[8][0].color("blue");
+        }
+    } 
+     
+   }   
+
+   
+
+      function traverse(direction){ //bigass switch function that is big. Uses info from keydown to traverse map.
+        console.log(CURRENT_AREA.name);
+        console.log(direction);
+        switch(CURRENT_AREA){
+            
+            case CALIFORNIA:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_WEST;
+                        break;
+                    case "West":
+                        break;
+                    case "South":
+                        break;
+                }
+                break;
+            case NORTH_WEST:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = NORTH_ROCKIES;
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        break;
+                    case "South":
+                        CURRENT_AREA = CALIFORNIA;
+                        break;
+                }
+                break;
+            case NORTH_ROCKIES:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = NORTH_CENTRAL;
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        CURRENT_AREA = NORTH_WEST;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                }
+                break;
+            case SOUTH_WEST:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_ROCKIES;
+                        break;
+                    case "West":
+                        CURRENT_AREA = CALIFORNIA;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_CENTRAL;
+                        break;
+                }
+                break;
+            case NORTH_CENTRAL:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        CURRENT_AREA = NORTH_ROCKIES;
+                        break;
+                    case "South":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                }
+                break;
+            case CENTRAL:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = EAST;
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_CENTRAL;
+                        break;
+                    case "West":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_CENTRAL;
+                        break;
+                }
+                break;
+            case SOUTH_CENTRAL:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = SOUTH_EAST;
+                        break;
+                    case "North":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                    case "West":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                    case "South":
+                        break;
+                }
+                break;
+            case NORTH_EAST:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        break;
+                    case "South":
+                        CURRENT_AREA = EAST;
+                        break;
+                }
+                break;
+            case EAST:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_EAST;
+                        break;
+                    case "West":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_EAST;
+                        break;
+                }
+                break;
+            case SOUTH_EAST:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        CURRENT_AREA = EAST;
+                        break;
+                    case "West":
+                        CURRENT_AREA = SOUTH_CENTRAL;
+                        break;
+                    case "South":
+                        break;
+                }
+                break;
+        }
+    }
+
+
+});

@@ -1,0 +1,239 @@
+
+var lastPattern = 0;
+
+function initImages(){
+    console.log("images");
+    Crafty.image_whitelist.push('.png');
+    var toLoad = new Array();
+    for(var i = 0; i < AREAS.length; i++){
+        var curr = AREAS[i];
+        toLoad.push(imgPath+curr.name+"/blue_sel.png");
+        toLoad.push(imgPath+curr.name+"/green_sel.png");
+        toLoad.push(imgPath+curr.name+"/red_sel.png");
+        toLoad.push(imgPath+curr.name+"/yellow_sel.png");
+        toLoad.push(imgPath+curr.name+"/green.png");
+        toLoad.push(imgPath+curr.name+"/yellow.png");
+        toLoad.push(imgPath+curr.name+"/red.png");
+    }
+    toLoad.push(imgPath+"Background.png");
+    toLoad.push(imgPath+"area-borders.png");
+    toLoad.push(imgPath+"all-borders.png");
+    toLoad.push(imgPath+"Tiles/blue.png");
+    toLoad.push(imgPath+"Tiles/yellow.png");
+    toLoad.push(imgPath+"Tiles/red.png");
+    toLoad.push(imgPath+"Tiles/green.png");
+    toLoad.push(imgPath+"Tiles/purple.png");
+
+    Crafty.load(toLoad, function(){
+        console.log("finished loading");
+    },
+
+    function(e){
+    }, 
+    
+    function(e){
+        console.log("error loading");
+        console.log(e);
+    });
+    return;
+}
+
+//input: what color to make the pattern
+//returns: an array with the pattern data
+//This method currently selects between one of four possible patterns
+//The array is a bounding box - is has as few empty spaces
+// (denoted by 0's) as is possible while still containing the entire pattern
+function getPattern(tileType) {
+    var patterns = ["J", "L", "O", "T", "INV_T", "INV_J", "INV_L", "+", "L_T", "R_T"];
+    var patternType = Crafty.math.randomElementOfArray(patterns);
+    var pattern;
+    if (patternType == "J") {
+        pattern = [[0, tileType],            //- *
+                   [0, tileType],            //- *
+                   [tileType, tileType]];    //* *
+        pattern.first = 1; 
+        pattern.num = 4;
+        pattern.t_type = tileType;
+    }
+    else if (patternType == "L") {           //* -
+        pattern = [[tileType, 0],            //* -
+                   [tileType, 0],            //* *
+                   [tileType, tileType]];
+        pattern.first = 0;
+        pattern.num = 4;  
+        pattern.t_type = tileType;
+    }
+    else if (patternType == "O") {
+        pattern = [[tileType, tileType],     //* *
+                   [tileType, tileType]];    //* *
+        pattern.first = 0;
+        pattern.num = 4;
+        pattern.t_type = tileType;       
+    }
+    else if (patternType == "T") {
+        pattern = [[tileType, tileType, tileType],
+                   [0, tileType, 0],         //* * *
+                   [0, tileType, 0]];        //- * -
+        pattern.first = 0;                   //- * -
+        pattern.num = 5;
+        pattern.t_type = tileType;  
+    }
+    else if (patternType == "INV_J") {
+        pattern = [[tileType, tileType],
+                   [0, tileType],            //* *
+                   [0, tileType]];           //- *
+        pattern.first = 0;                   //- *
+        pattern.num = 4;
+        pattern.t_type = tileType;  
+    }
+    else if (patternType == "INV_L") {
+        pattern = [[tileType, tileType],
+                   [tileType, 0],         //* *
+                   [tileType, 0]];        //* -
+        pattern.first = 0;                //* -
+        pattern.num = 4;
+        pattern.t_type = tileType;  
+    }
+    else if (patternType == "INV_T") {
+        pattern = [[0, tileType, 0],
+                   [0, tileType, 0],                       //- * -
+                   [tileType, tileType, tileType]];        //- * -
+        pattern.first = 1;                                 //* * *
+        pattern.num = 5;
+        pattern.t_type = tileType;  
+    }
+    else if (patternType == "+") {
+        pattern = [[0, tileType, 0],
+                   [tileType, tileType, tileType],         //- * -
+                   [0, tileType, 0]];                      //* * *
+        pattern.first = 1;                                 //- * -
+        pattern.num = 5;
+        pattern.t_type = tileType;  
+    }
+    else if (patternType == "R_T") {
+        pattern = [[0, 0, tileType],
+                   [tileType, tileType, tileType],         //- - *
+                   [0, 0, tileType]];                      //* * *
+        pattern.first = 2;                                 //- - *
+        pattern.num = 5;
+        pattern.t_type = tileType;  
+    }
+    else if (patternType == "L_T") {
+        pattern = [[tileType, 0, 0],
+                   [tileType, tileType, tileType],         //* - -
+                   [tileType, 0, 0]];                      //* * *
+        pattern.first = 0;                                 //* - -
+        pattern.num = 5;
+        pattern.t_type = tileType;  
+    }
+    pattern.s_type = patternType;
+    return pattern;
+}
+
+//input: none
+//returns: a randomly selected pattern
+//Does checking to ensure that the pattern does not already exist in the grid
+function getRandomPattern(grid, SIZE, colors) {
+    tileTypes =  ["red", "green", "blue", "yellow", "purple"]; 
+    tileType = Crafty.math.randomElementOfArray(tileTypes);
+    var pattern = getPattern(tileType);
+    var run = true;
+    var check;
+    while(run){
+        check = checkGrid(grid, pattern, SIZE);
+        if(check[0] != -1 || pattern.s_type == lastPattern.s_type || pattern.t_type == lastPattern.t_type || colors[tileType] < pattern.num+9){
+            tileType = Crafty.math.randomElementOfArray(tileTypes);
+            pattern = getPattern(tileType);
+        }
+        else{
+            lastPattern = pattern;
+            return pattern;
+        }
+    } 
+}
+
+// Checks the entire grid to see if the pattern exists anywhere.
+//If the first element to be found is not at [0,0] in the pattern array,
+// Then we can't start checking at [0,0] in the puzzle grid
+
+//Returns: The coordinates of the first matched color in the puzzle if the
+//  pattern is found, or [-1, -1] if it is not found
+
+function checkGrid(grid, pattern, SIZE) {
+    var first = pattern.first;
+    var found = false;
+    for(var a = 0; a < (SIZE - (pattern.length-1)); a++){
+        for(var b = first; b < SIZE; b++){
+            var curr = grid[a][b];
+            if(curr.tileColor == pattern.t_type && b+((pattern[0].length-1)-first) < SIZE){
+                //passes in the upper left hand corner coordinates of the bounding box
+                //NOT the coordinates of the matched tile
+                found = boundingBox(grid, pattern, a, b-first);
+                if (found){ 
+                    console.log("found match");
+                    return [a,b-first];
+                }
+            }
+        }
+    }
+    return [-1, -1];
+}
+
+function pauseMenu(){
+
+    Crafty.e("2D, DOM, Color, pause")
+        .attr({w: 952, h: 600, alpha:0.5, z:15})
+        .color("black");
+
+    Crafty.e("2D, DOM, Text, pause")
+        .attr({x: 400, y: 300, z:17})
+        .text("Paused")
+        .textFont('size', '40px')
+        .textColor('#FFFFFF');
+
+    setTimeout(function(){Crafty.pause();}, 30);
+
+    Crafty.e("2D, DOM, pause")
+        .bind('KeyDown', function(e){
+            if(e.key==Crafty.keys["ESC"]){
+                Crafty("pause").each(function(){ this.destroy(); });
+                Crafty.pause();                
+            }
+        });
+}
+
+
+//PRIVATE
+function boundingBox(grid, pattern, x, y){
+    console.log("bounding box");
+    for(var a = x; a < x+pattern.length;a++){
+        for(var b = y; b < y+pattern[0].length; b++){
+            if(pattern[a-x][b-y] == grid[a][b].tileColor) continue;
+            else if(pattern[a-x][b-y] == 0) continue;
+            else return false;
+        }
+    }
+    return true;
+}
+
+function saveGame(){
+    //Save the state of all the areas
+    for(var i = 0; i < AREAS.length; i++){
+        var curr = AREAS[i];
+        Crafty.storage(curr.name, curr[0]);
+    }
+    Crafty.storage('HARD_SOLVED', HARD_SOLVED);
+    Crafty.storage('MED_SOLVED', MED_SOLVED);
+    Crafty.storage('EASY_SOLVED', EASY_SOLVED);
+    Crafty.storage('MATCHED', MATCHED);
+}
+
+function saveAudioPrefs(){
+    Crafty.storage('SFX_VOL', SFX_VOL);
+    Crafty.storage('OST_VOL', OST_VOL);
+}
+
+function loadAudioPrefs(){
+    SFX_VOL = Crafty.storage('SFX_VOL');
+    OST_VOL = Crafty.storage('OST_VOL');   
+}

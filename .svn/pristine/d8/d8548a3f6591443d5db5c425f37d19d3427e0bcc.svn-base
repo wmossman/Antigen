@@ -1,0 +1,97 @@
+//This will contain miscellaneous utilities that don't really belong in other files.
+
+// Creates an array (3x3) with a random pattern with a random color 
+
+//PRIVATE
+function getPattern(tileType) {
+    var patterns = ["J", "L", "O", "T"];
+    patternType = Crafty.math.randomElementOfArray(patterns);
+    var pattern;
+    if (patternType == "J") {
+        pattern = new Array(3);
+        for(var i=0;i<pattern.length;i++) pattern[i] = new Array(2);
+    	pattern[0][1] = tileType;       //  -  *  
+    	pattern[1][1] = tileType;       //  -  *  
+    	pattern[2][1] = tileType;       //  *  *  
+    	pattern[2][0] = tileType;   
+        pattern.first = [0,1];    
+    }
+    else if (patternType == "L") {
+        pattern = new Array(3);
+        for(var i=0;i<pattern.length;i++) pattern[i] = new Array(2);
+    	pattern[0][0] = tileType;       //  *  -
+    	pattern[1][0] = tileType;       //  *  -
+    	pattern[2][0] = tileType;       //  *  *
+    	pattern[2][1] = tileType;
+        pattern.first = [0,0];       
+    }
+    else if (patternType == "O") {
+        pattern = new Array(2);
+        for(var i=0;i<pattern.length;i++) pattern[i] = new Array(2);
+    	pattern[0][0] = tileType;       //  *  * 
+    	pattern[0][1] = tileType;       //  *  * 
+    	pattern[1][0] = tileType;       
+    	pattern[1][1] = tileType;
+        pattern.first = [0,0];       
+    }
+    else if (patternType == "T") {
+        pattern = new Array(3);
+        for(var i=0;i<pattern.length;i++) pattern[i] = new Array(3);
+    	pattern[0][0] = tileType;       //  *  *  *
+    	pattern[0][1] = tileType;       //  -  *  -
+    	pattern[0][2] = tileType;       //  -  *  -
+    	pattern[1][1] = tileType;
+        pattern.first = [0,0];       
+    }
+    return pattern;
+}
+
+function getRandomPattern() {
+
+	for (var i = 0; i < 3; i++) {
+		pattern[i] = new array(3);
+	}
+	tileTypes =  ["red", "green", "blue", "yellow", "purple"]; 
+	tileType = Crafty.randomElementOfArray(tileTypes);
+	return getPattern(tileType); 
+
+}
+
+
+// Checks the entire grid to see if the pattern exists anywhere. 
+//If the first element to be found is not at [0,0] in the pattern array,
+// Then we can't start checking at [0,0] in the puzzle grid
+
+//Returns: The coordinates of the first matched color in the puzzle if the
+//  pattern is found, or [-1, -1] if it is not found
+
+function checkGrid(grid, pattern) {
+    var first = pattern.first;
+    var firstColor = pattern[first[0]][first[1]];
+    var found = false;
+    for(var a = 0; a < (10-pattern.length); a++){
+        for(var b = pattern.first[1]; b < (10-pattern[0].length); b++){
+            var curr = grid[a][b];
+            if(curr._color == firstColor){
+                //passes in the upper left hand corner coordinates of the bounding box
+                //NOT the coordinates of the matched tile
+                found = boundingBox(grid, pattern, a, b-first[1]);
+                if (found) return [a,b];
+            }
+        }
+    }
+    return [-1, -1];
+}
+
+
+//PRIVATE
+function boundingBox(grid, pattern, x, y){
+    for(var a = x; a < x+pattern.length;a++){
+        for(var b = y; b < y+pattern[0].length; b++){
+            if(pattern[a][b] == grid[a][b]) continue;
+            else if(pattern[a][b] == undefined) continue;
+            else return false;
+        }
+    }
+    return true;
+}

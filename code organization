@@ -1,0 +1,6 @@
+game.js: Holds main game loop. Tracks player progress, infection state of each region. Handles calling scenes.
+
+scenes.js: Contains every scene which will be called by game.js.
+
+utils.js: Contains the pattern checker algorithm, random pattern generator, and checking to ensure 
+					solvability of patterns. Also contains function for displaying dialogue (for tutorial & cutscenes)

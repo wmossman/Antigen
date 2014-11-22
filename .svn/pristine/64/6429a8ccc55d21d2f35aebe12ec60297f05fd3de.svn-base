@@ -1,0 +1,182 @@
+var mapImages = {};
+
+function initMapImages(){
+    var curr;
+    for(var a = 0; a < AREAS.length; a++){
+        curr = AREAS[a];
+        mapImages[curr.name] = 0;
+    }
+    console.log("tis map images %o", mapImages);
+}
+
+//input: what color to make the pattern
+//returns: an array with the pattern data
+//This method currently selects between one of four possible patterns
+//The array is a bounding box - is has as few empty spaces
+// (denoted by 0's) as is possible while still containing the entire pattern
+function getPattern(tileType) {
+    var patterns = ["J", "L", "O", "T"];
+    var patternType = Crafty.math.randomElementOfArray(patterns);
+    var pattern;
+    if (patternType == "J") {
+        pattern = [[0, tileType],            //- *
+                   [0, tileType],            //- *
+                   [tileType, tileType]];    //* *
+        pattern.first = 1; 
+        pattern.t_type = tileType;
+    }
+    else if (patternType == "L") {           //* -
+        pattern = [[tileType, 0],            //* -
+                   [tileType, 0],            //* *
+                   [tileType, tileType]];
+        pattern.first = 0;  
+        pattern.t_type = tileType;
+    }
+    else if (patternType == "O") {
+        pattern = [[tileType, tileType],     //* *
+                   [tileType, tileType]];    //* *
+        pattern.first = 0;
+        pattern.t_type = tileType;       
+    }
+    else if (patternType == "T") {
+        pattern = [[tileType, tileType, tileType],
+                   [0, tileType, 0],         //* * *
+                   [0, tileType, 0]];        //- * -
+        pattern.first = 0;                   //- * -
+        pattern.t_type = tileType;  
+    }
+    return pattern;
+}
+
+//input: none
+//returns: a randomly selected pattern
+//Does checking to ensure that the pattern does not already exist in the grid
+function getRandomPattern(grid, SIZE, colors) {
+    console.log("getting pattern");
+    tileTypes =  ["red", "green", "blue", "yellow", "purple"]; 
+    tileType = Crafty.math.randomElementOfArray(tileTypes);
+    var pattern = getPattern(tileType);
+    var run = true;
+    var check;
+    while(run){
+        check = checkGrid(grid, pattern, SIZE);
+        if(check[0] != -1){
+            tileType = Crafty.math.randomElementOfArray(tileTypes);
+            pattern = getPattern(tileType);
+        }
+        else{
+            return pattern;
+        }
+    } 
+}
+
+function teleType(id, text) {
+	function typeChar(char) {
+		if (char == '◄' && document.getElementById(id).innerHTML >= 1) {
+		  	document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.substr(0, document.getElementById(id).innerHTML.length-1);
+		}
+		else {
+			document.getElementById(id).innerHTML += char;
+		}
+	}
+ 
+	var counter = 0;
+	for(var i=0; i<text.length; i++) {
+		setTimeout(function() {
+			var char = text[counter];
+			typeChar(char);
+			counter++;
+		},50 * i);
+	}
+}
+
+// Checks the entire grid to see if the pattern exists anywhere.
+//If the first element to be found is not at [0,0] in the pattern array,
+// Then we can't start checking at [0,0] in the puzzle grid
+
+//Returns: The coordinates of the first matched color in the puzzle if the
+//  pattern is found, or [-1, -1] if it is not found
+
+function checkGrid(grid, pattern, SIZE) {
+    var first = pattern.first;
+    var found = false;
+    for(var a = 0; a < (SIZE - (pattern.length-1)); a++){
+        for(var b = first; b < SIZE; b++){
+            var curr = grid[a][b];
+            if(curr._color == pattern.t_type && b+((pattern[0].length-1)-first) < SIZE){
+                //passes in the upper left hand corner coordinates of the bounding box
+                //NOT the coordinates of the matched tile
+                found = boundingBox(grid, pattern, a, b-first);
+                if (found){ 
+                    return [a,b-first];
+                }
+            }
+        }
+    }
+    return [-1, -1];
+}
+
+
+//PRIVATE
+function boundingBox(grid, pattern, x, y){
+    for(var a = x; a < x+pattern.length;a++){
+        for(var b = y; b < y+pattern[0].length; b++){
+            if(pattern[a-x][b-y] == grid[a][b]._color) continue;
+            else if(pattern[a-x][b-y] == 0) continue;
+            else {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+//Call to update the overworld map graphics to reflect the state of the game
+function updateMap(){
+    Crafty("overlay").each(function(){ this.destroy(); });
+
+    //current selection stuff
+    if(CURRENT_AREA[0] == 0) {
+        Crafty.e("2D, DOM, Image, overlay")
+        .attr({z: 5})
+        .image(imgPath + CURRENT_AREA.name + "/blue_sel.png");
+    }
+    else if(CURRENT_AREA[0] == 1) {
+        Crafty.e("2D, DOM, Image, overlay")
+        .attr({z: 5})
+        .image(imgPath + CURRENT_AREA.name + "/green_sel.png");
+    }
+    else if(CURRENT_AREA[0] == 2) {
+        Crafty.e("2D, DOM, Image, overlay")
+        .attr({z: 5})
+        .image(imgPath + CURRENT_AREA.name + "/yellow_sel.png");
+    }
+    else if(CURRENT_AREA[0] == 3) {
+        Crafty.e("2D, DOM, Image, overlay")
+        .attr({z: 5})
+        .image(imgPath + CURRENT_AREA.name + "/red_sel.png");
+    }
+
+    //rest of the updates
+    for(var a = 0; a < AREAS.length; a++){
+        var curr = AREAS[a];
+        
+        if(curr.name == CURRENT_AREA.name) continue;
+
+        else if (curr[0] === 1) {
+            Crafty.e("2D, DOM, Image, overlay")
+             .attr({z: 2})
+             .image(imgPath + curr.name + "/green.png");
+        }
+        else if (curr[0] === 2) {
+            Crafty.e("2D, DOM, Image, overlay")
+             .attr({z: 2})
+             .image(imgPath + curr.name + "/yellow.png");
+        }
+        else if (curr[0] === 3) {
+            Crafty.e("2D, DOM, Image, overlay")
+             .attr({z: 2})
+             .image(imgPath + curr.name + "/red.png");
+        }
+    }
+}

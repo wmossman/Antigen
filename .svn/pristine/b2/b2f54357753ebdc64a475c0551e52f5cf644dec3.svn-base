@@ -1,0 +1,749 @@
+//This file will hold all of the scenes we'll build for Antigen
+
+
+/*Crafty.scene("main_menu", function{
+
+});
+
+Crafty.scene("loading_screen", function{
+
+});
+*/
+Crafty.scene("overworld_map", function(){
+   
+    function init(){
+       
+        NEW_GAME=false;
+        for(var i=0; i<AREAS.length; i++){
+           
+            var tmp = AREAS[i];
+            tmp[0]=0;
+            //initialize all areas to uninfected
+        }
+        //refer to a random AREA element and set it to contagious
+        var tmp = Crafty.math.randomElementOfArray(AREAS);
+        console.log(tmp);
+        tmp[0] = 3;
+        if(tmp.length>=4){
+            //create random to choose if you want three greens or two yellows, randomNum 1 means two yellows
+            var randomNum = Crafty.math.randomInt(1,2);
+            if(randomNum==1){
+                var i=0;
+                while(i!=2){
+                    var randomConnection = Crafty.math.randomInt(1,tmp.length-1);
+                    var tmpConnection = tmp[randomConnection];
+                    console.log(tmpConnection);
+                    if(tmpConnection[0]!=0) continue;
+                    tmpConnection[0]=2;
+                    i++;
+                }
+                
+            }
+            else{//randomNum is 2
+                var i=0;
+                while(i!=3){
+                    var randomConnection = Crafty.math.randomInt(1,tmp.length-1);
+                    var tmpConnection = tmp[randomConnection];
+                    console.log(tmpConnection);
+                    if(tmpConnection[0]!=0) continue;
+                    tmpConnection[0]=1;
+                    i++;
+                } 
+            }
+        }
+        if(tmp.length==3){
+            //Create random to choose if you want two yellows or one green and one red, 1 is two yellows
+            var randomNum = Crafty.math.randomInt(1,2);
+            if(randomNum==1){
+               
+                for(var i=1; i<3;i++){
+                    var tmpConnection = tmp[i];
+                    console.log(tmpConnection);
+                    tmpConnection[0]=2;
+                }
+                
+            }
+            else{//randomNum is 2
+                var i=0;
+                while(i!=3){
+                    var randomConnection = Crafty.math.randomInt(1,2);
+                   
+                   if(randomConnection==1){//make first connection infectious
+                        var tmpConnection = tmp[1];
+                        console.log(tmpConnection);
+                        var tmpConnection2 = tmp[2];
+                        console.log(tmpConnection2);
+                        tmpConnection[0]=3;
+                        tmpConnection2[0]=1;
+                    }
+                    else{//randomConnection is 2, make second connection infectious
+                        var tmpConnection = tmp[2];
+                        console.log(tmpConnection);
+                        var tmpConnection2 = tmp[1];
+                        console.log(tmpConnection2);
+                        tmpConnection[0]=3;
+                        tmpConnection2[0]=1;
+                    }
+                }
+            }
+        }
+        else{//North east
+            console.log("north east");
+            var randomNum = Crafty.math.randomInt(1,2);
+            var randomSituation = Crafty.math.randomInt(1,2);
+            var EAST= AREAS[EAST];
+            var SOUTH_EAST= AREAS[SOUTH_EAST];
+            var NORTH_CENTRAL= AREAS[NORTH_CENTRAL];
+            var CENTRAL= AREAS[CENTRAL];
+            if(randomNum==1){//three greens
+                
+                if(randomSituation==1){//East, Central and South East are infected dawg
+                    EAST[0]=SOUTH_EAST[0]=CENTRAL[0]=1;
+                }
+                else{//randomSit is 2, East, Central, and North Central are infected yo
+                    EAST[0]=NORTH_CENTRAL[0]=CENTRAL[0]=1;
+                }
+            }
+            else{//random is 2, two yellows
+                var randomSituation = Crafty.math.randomInt(1,2);
+                if(randomSituation==1){//East and Central infected dawg
+                    EAST[0]=CENTRAL[0]=2;
+                }
+                else{//randomSit is 2, East, Central, and North Central are infected yo
+                  EAST[0]=SOUTH_EAST[0]=1;
+                }
+            }
+        }   
+    }    
+    function progress(){//CURRENT_AREA is the area you were just playing in, JUST_WON is if you won the level or not
+       
+        for(var j=0;j<AREAS.length;j++){//loops through all sickly areas and either progresses them or has them infect others
+            if(AREAS[j]!=CURRENT_AREA){
+                var tmp = AREAS[j];
+                if(tmp[0]==3) infect(tmp, 3);//30 percent chance of infecting
+                else if(tmp[0]==1||tmp[0==2]){
+                    var randomSituation = Crafty.math.randomInt(1,3);//33 percent chance of progressing
+                    if(randomSituation==1) tmp[0]++;
+                }
+            }
+        }
+        //Checking if you won after so that if you did the area just healed wont by chance become green from the random choice
+        if(JUST_WON) CURRENT_AREA[0]=0;
+        else{
+            if(CURRENT_AREA[0]==3)infect2(CURRENT_AREA, 10);
+            else CURRENT_AREA[0]++;
+        }
+    }
+    function infect(area, likelihood){//area is infectious area that is infecting, likelihood is 1-10 that defines likelihood of infecting
+        for(var i=1;i<area.length;i++){
+            var randomSituation = Crafty.math.randomInt(1,10);
+            if(randomSituation<=likelihood){
+                var tmpConnection = area[i];
+                if(tmpConnection[0]==0) tmpConnection[0]=1;
+            }
+        }
+    }
+    function infect2(area, likelihood){//function to infect 1 area around the level you just went to and failed cause you suck at this game
+        var randomSituation = Crafty.math.randomInt(1,area.length);
+        if(randomSituation<=likelihood){
+            var tmpConnection = area[i];
+            if(tmpConnection[0]==0) tmpConnection[0]=1;
+        }
+    }
+    function traverse(direction){
+        switch(CURRENT_AREA){
+            case CALIFORNIA:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_WEST;
+                        break;
+                    case "West":
+                        break;
+                    case "South":
+                        break;
+                }
+            case NORTH_WEST:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = NORTH_ROCKIES;
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        break;
+                    case "South":
+                        CURRENT_AREA = CALIFORNIA;
+                        break;
+                }
+            case NORTH_ROCKIES:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = NORTH_CENTRAL;
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        CURRENT_AREA = NORTH_WEST;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                }
+            case SOUTH_WEST:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = SOUTH_CENTRAL;
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_WEST;
+                        break;
+                    case "West":
+                        CURRENT_AREA = CALIFORNIA;
+                        break;
+                    case "South":
+                        break;
+                }
+            case NORTH_CENTRAL:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        CURRENT_AREA = NORTH_ROCKIES;
+                        break;
+                    case "South":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                }
+            case CENTRAL:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = EAST;
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_CENTRAL;
+                        break;
+                    case "West":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_CENTRAL;
+                        break;
+                }
+            case SOUTH_CENTRAL:
+                switch(direction){
+                    case "East":
+                        CURRENT_AREA = SOUTH_EAST;
+                        break;
+                    case "North":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                    case "West":
+                        CURRENT_AREA = SOUTH_WEST;
+                        break;
+                    case "South":
+                        break;
+                }
+            case NORTH_EAST:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        break;
+                    case "West":
+                        break;
+                    case "South":
+                        CURRENT_AREA = EAST;
+                        break;
+                }
+            case EAST:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        CURRENT_AREA = NORTH_EAST;
+                        break;
+                    case "West":
+                        CURRENT_AREA = CENTRAL;
+                        break;
+                    case "South":
+                        CURRENT_AREA = SOUTH_EAST;
+                        break;
+                }
+            case SOUTH_EAST:
+                switch(direction){
+                    case "East":
+                        break;
+                    case "North":
+                        CURRENT_AREA = EAST;
+                        break;
+                    case "West":
+                        CURRENT_AREA = SOUTH_CENTRAL;
+                        break;
+                    case "South":
+                        break;
+                }
+        }
+    }
+   
+   if(NEW_GAME) init();
+   else progress();
+   
+   var manager = Crafty.e("manager");
+   manager.bind('KeyDown', function(e) {
+        if (e.key == Crafty.keys['D']||e.key == Crafty.keys['RIGHT_ARROW']) {
+            traverse("East");
+            
+        } 
+        else if (e.key == Crafty.keys['W']||e.key == Crafty.keys['UP_ARROW']) {
+            traverse("North");
+            
+        }
+        else if (e.key == Crafty.keys['A']||e.key == Crafty.keys['LEFT_ARROW']) {
+            traverse("West");
+        }
+        else if (e.key == Crafty.keys['S']||e.key == Crafty.keys['DOWN_ARROW']){
+            traverse("South");
+        }
+        else if (e.key == Crafty.keys['SPACE']){
+            Crafty.scene("puzzle", CURRENT_AREA);
+            
+        }
+    });  
+    
+    
+    function printMap(){
+        for(var i=0; i<AREAS.length;i++){
+            var tmp = AREAS[i];
+            if(tmp[0]==0) console.log(tmp + " is uninfected");
+            if(tmp[0]==1) console.log(tmp + " is slightly infected");
+            if(tmp[0]==2) console.log(tmp + " is very infected");
+            if(tmp[0]==3) console.log(tmp + " is contagiously infected");
+        }
+        
+    }
+});
+
+Crafty.scene("puzzle", function(CURRENT_AREA) { 
+    
+    var SIZE = 10;
+
+    var grid = new Array(SIZE);
+    for(var i = 0; i<SIZE; i++){
+            grid[i] = new Array(SIZE);
+    }
+
+    var colors = [0,0,0,0,0];
+
+    var playerTurn = 1;
+
+    var goal = 5;
+
+    var clock;
+    
+    var score = 0;
+
+    var scoreboard;
+
+    var tileTypes =  ["red", "green", "blue", "yellow", "purple"]; 
+
+    var pattern = getRandomPattern();
+    displayCurrentPattern();
+
+    var time = 100;
+
+    initGUI();
+    makeGrid();
+
+    var player1 = Crafty.e("2D, DOM, Color, player1")
+     .attr({x: 46, y: 50, h: 45, w:(50*SIZE)-2, z:11})
+     .css("border", "5px solid black");
+
+    player1.row = 1;
+
+    //if > 0, has been shifted right
+    // if < 0, has been shifted left
+    var p1shifted = 0;
+
+    player1.bind('KeyDown', function(e) {
+        if (e.key == Crafty.keys['UP_ARROW'] && playerTurn == 1) {
+            if(p1shifted > 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowLeft(player1.row, distance);
+                p1shifted = 0;
+            }
+            else if(p1shifted < 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowRight(player1.row, distance);
+                p1shifted = 0;
+            }
+
+            player1.row--;
+            player1.shift(0,-50,0,0);
+            if(player1.y < 50) { 
+                player1.y = 50*SIZE;
+                player1.row = 10; 
+            }
+        } 
+        else if (e.key == Crafty.keys['DOWN_ARROW'] && playerTurn == 1) {
+            if(p1shifted > 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowLeft(player1.row, distance);
+                p1shifted = 0;
+            }
+            else if(p1shifted < 0){
+                var distance = Crafty.math.abs(p1shifted);
+                shiftRowRight(player1.row, distance);
+                p1shifted = 0;
+            }
+
+            player1.row++;
+            player1.shift(0,50,0,0);
+            if(player1.y > 50*SIZE) { 
+                player1.y = 50; 
+                player1.row = 1;
+            }
+        }
+        else if (e.key == Crafty.keys['LEFT_ARROW'] && playerTurn == 1){
+            p1shifted--;
+            if(p1shifted <= -SIZE) p1shifted = 0;
+            shiftRowLeft(player1.row, 1);
+        }
+        else if (e.key == Crafty.keys['RIGHT_ARROW'] && playerTurn == 1){
+            p1shifted++;
+            if(p1shifted >= SIZE) p1shifted = 0;
+            shiftRowRight(player1.row, 1);
+        }
+        else if (e.key == Crafty.keys['SPACE'] && playerTurn == 1){
+            shiftArrayRow(player1.row-1, p1shifted); //player1.row is player 1 grid coordinate +1
+            p1shifted = 0;
+            var check = checkGrid(grid, pattern, SIZE);
+            if(check[0] != -1 && check[1] != -1) patternMatched(check);
+            setTimeout(function(){ playerTurn = 2; }, 20);
+        }
+    });
+
+    var player2 = Crafty.e("2D, DOM, Color, player2")
+     .attr({x: 50, y: 46, h: (50*SIZE)-2, w:45, z:11})
+     .css("border", "5px solid black");
+
+    player2.col = 1; 
+
+    //if p2shifted < 0, col has been shifted up
+    // if p2shifted > 0, col has been shifted down
+    var p2shifted = 0;
+
+    player2.bind('KeyDown', function(e) {
+        if (e.key == Crafty.keys['D'] && playerTurn == 2) {
+            if(p2shifted > 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColUp(player2.col, distance);
+                p2shifted = 0;
+            }
+            else if(p2shifted < 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColDown(player2.col, distance);
+                p2shifted = 0;
+            }
+
+            player2.col++;
+            player2.shift(50,0,0,0);
+            if(player2.x > 50*SIZE) { 
+                player2.x = 50;
+                player2.col = 1;
+            }
+        } 
+        else if (e.key == Crafty.keys['A'] && playerTurn == 2) {
+            if(p2shifted > 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColUp(player2.col, distance);
+                p2shifted = 0;
+            }
+            else if(p2shifted < 0){
+                var distance = Crafty.math.abs(p2shifted);
+                shiftColDown(player2.col, distance);
+                p2shifted = 0;
+            }
+
+            player2.col--;
+            player2.shift(-50,0,0,0);
+            if(player2.x < 50) { 
+                player2.x = 50*SIZE; 
+                player2.col = 10;
+            }
+        }
+        else if (e.key == Crafty.keys['W'] && playerTurn == 2) {
+            p2shifted--;
+            if(p2shifted <= -SIZE) p2shifted = 0;
+            shiftColUp(player2.col, 1);
+        }
+        else if (e.key == Crafty.keys['S'] && playerTurn == 2){
+            p2shifted++;
+            if(p2shifted >= SIZE) p2shifted = 0;
+            shiftColDown(player2.col, 1);
+        }
+        else if (e.key == Crafty.keys['SPACE'] && playerTurn == 2){
+            shiftArrayCol(player2.col-1, p2shifted); //player2.col is grid coordinate of player2+1
+            setTimeout(function(){p2shifted = 0;});
+            var check = checkGrid(grid, pattern, SIZE);
+            if(check[0] != -1 && check[1] != -1) patternMatched(check);
+            setTimeout(function(){ playerTurn = 1; }, 20);
+        }
+        else if (e.key == Crafty.keys['P']){
+            printGrid();
+        }
+    });
+     
+
+    //Initializes the 10x10 grid and fills grid[][] with pointers to elements 
+    function makeGrid(){
+        for(var a = 0; a < SIZE; a++){
+            for(var b = 0; b < SIZE; b++){    
+               //Done this way, instead of with Crafty.math.randomElementOfArray(), 
+               //  to enable tracking colors.
+                var randNum = Crafty.math.randomInt(0,4); 
+                var tileType = tileTypes[randNum]; 
+                
+                grid[a][b] = Crafty.e("2D, DOM, Color, gameTile, Tween")
+                 .attr({x: (b+1)*50, y: (a+1)*50, h: 49, w: 49, z: 10})
+                 .css("border", "1px solid black") 
+                 .color(tileType);
+                colors[randNum]++; 
+            }
+        }
+    }
+
+    //Initializes the GUI elements for the puzzle scene
+    function initGUI(){
+        clock = Crafty.e("2D, DOM, Text, Delay")
+         .attr({x:10, y:10, w:40, h:40})
+         .text(function(){ return time; })
+         .textFont({size: '20px'})
+         .delay(function(){
+            time--;
+            clock.text(function(){ return time; });
+            if(time == 0) endPuzzle(); 
+         }, 1000, -1);
+
+        Crafty.e("2D, DOM, Text")//Prompts the player with the next shape to match
+         .attr({x:650, y: 220, w:70, h:50})
+         .text("Match This:");
+
+        Crafty.e("2D, DOM, Text")
+         .attr({x:634, y:20, w:100, h:50})
+         .text("You must match:");
+
+        Crafty.e("2D, DOM, Text")
+         .attr({x:660, y:40, w:50, h:50})
+         .textFont({size: '40px'})
+         .text(function(){ return goal; });
+
+        Crafty.e("2D, DOM, Text")
+         .attr({x:650, y:100, w:100, h:50})
+         .text("Matched:");
+
+        scoreboard = Crafty.e("2D, DOM, Text")
+         .attr({x:660, y:130, w:50, h:50})
+         .textFont({size: '40px'})
+         .text(function(){ return score; });
+    }
+
+    //Creates small divs to display the current pattern to be matched
+    function displayCurrentPattern(){
+        var prev = Crafty("pattern");
+        for(var a = 0; a < prev.length; a++) Crafty(prev[a]).destroy;
+
+        for(var a = 0; a < pattern.length; a++){
+            for(var b = 0; b < pattern[0].length; b++){
+                if(pattern[a][b] != 0){
+                    Crafty.e("2D, DOM, Color, pattern")
+                     .attr({x: 630+b*33, y: 250+a*33, w:32, h:32})
+                     .css("border", "1px solid black")
+                     .color(pattern[a][b]);
+                }
+            }
+        }
+    }
+
+    //Input: row: which row to shift
+    //       distance: number of tiles to shift by (always positive please)
+    //Result: pretty obvious, derp
+    function shiftRowRight(row, distance){      
+        var rowCoordinate = row*50; //row*50 is the actual pixel coordinate of objects
+        var tiles = Crafty("gameTile"); //Get an array of every tile 
+        //for each tile in tiles[], check its coordinate and shift if it is 
+        // the same as rowCoordinate.
+        var curr;
+        for(var a = 0; a<SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr._y == rowCoordinate) { curr.shift(50*distance, 0, 0, 0); }
+            if(curr._x >= 50*(SIZE+1)) { curr.x -= 50*SIZE; }
+        }
+    }
+
+    //You get the gist
+    function shiftRowLeft(row, distance){       
+        var rowCoordinate = row*50; 
+        var tiles = Crafty("gameTile");
+        var curr;   
+        for(var a = 0; a<SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr.y == rowCoordinate) { curr.shift(-50*distance, 0, 0, 0); }
+            if(curr.x < 50) { curr.x += 50*SIZE; }
+        }
+    }
+
+    //No point continuing to comment these
+    function shiftColUp(col, distance){
+        var colCoordinate = col*50;
+        var tiles = Crafty("gameTile");
+        var curr;
+        for(var a = 0; a < SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr.x == colCoordinate) { curr.shift(0,-50*distance, 0, 0); }
+            if(curr.y < 50) { curr.y += 50*SIZE; }
+        }
+    }
+
+    //But I did anyway
+    function shiftColDown(col, distance){
+        var colCoordinate = col*50;
+        var tiles = Crafty("gameTile");
+        var curr;
+        for(var a = 0; a < SIZE*SIZE; a++){
+            curr = Crafty(tiles[a]);
+            if(curr.x == colCoordinate) { curr.shift(0, 50*distance, 0, 0); }
+            if(curr.y >= 50*(SIZE+1)) { curr.y -= 50*SIZE; }
+        }
+    }
+
+
+    //Adjust grid[][] to keep it in sync with what's onscreen
+    //col is which column to shift
+    //distance is distance to shift.
+    //    negative values shift up, positive values shift down
+    function shiftArrayCol(col, distance){
+            //grid[curr+distance][col] = grid[curr][col]
+
+            //don't do any computation if nothing to compute
+            if(distance == 0) return;
+            console.log("distance: " + distance);
+
+            var dist = Crafty.math.abs(distance);
+            var temp = new Array(dist);
+            if(distance<0){
+                    //save the elements at the edge so we can put them on the other edge
+                    for(var a = 0; a < dist; a++)
+                            temp[a] = grid[a][col];
+                   
+                    //shift everything over
+                    for(var a = 0; a < (SIZE-dist); a++)
+                            grid[a][col] = grid[a+dist][col];
+                   
+                    //tack the temp back onto the end
+                    var init = SIZE-dist;
+                    for(var a = init; a < SIZE; a++)
+                            grid[a][col] = temp[a-init];
+            }
+            else{
+                    //save the edge elements
+                    for(var a = 0; a < dist; a++)
+                            temp[dist-a-1] = grid[SIZE-1-a][col];
+                   
+                    //shift over
+                    for(var a = 0; a < (SIZE-dist); a++)
+                            grid[SIZE-1-a][col] = grid[SIZE-1-a-dist][col];
+
+                    //tack the temp back on
+                    for(var a = 0; a < dist; a++)
+                            grid[a][col] = temp[a];
+            }
+        }
+
+    //Adjust grid[][] to keep it in sync with what's onscreen
+    //row is which row to shift
+    //distance is distance to shift.
+    //    negative values shift left, positive values shift right.,
+    function shiftArrayRow(row, distance){
+            // don't do any computation if nothing to compute
+            if(distance == 0) return;
+            console.log("distance: " + distance);
+
+            var dist = Crafty.math.abs(distance);
+            var temp = new Array(dist);
+            if(distance<0){
+                    //save the elements at the edge so we can put them on the other edge
+                    for(var a = 0; a < dist; a++)
+                            temp[a] = grid[row][a];
+                   
+                    //shift everything over
+                    for(var a = 0; a < (SIZE-dist); a++)
+                            grid[row][a] = grid[row][a+dist];
+                   
+                    //tack the temp back onto the end
+                    var init = SIZE-dist;
+                    for(var a = init; a < SIZE; a++)
+                            grid[row][a] = temp[a-init];
+            }
+            else{
+                    //save the edge elements
+                    for(var a = 0; a < dist; a++)
+                            temp[(dist-a)-1] = grid[row][SIZE-1-a];
+                   
+                    //shift over
+                    for(var a = 0; a < (10-dist); a++)
+                            grid[row][SIZE-1-a] = grid[row][SIZE-1-a-dist];
+
+                    //tack the temp back on
+                    for(var a = 0; a < dist; a++)
+                            grid[row][a] = temp[a];
+            }
+    }
+
+    //Input: coordinates of the bounding box of the pattern
+    //Result: Deletes the pattern in the grid and replaces with random elements.
+    //        Increments player score, updates the scoreboard, and gets a new pattern.
+    function patternMatched(coordinates){
+        //Delete the pattern and replace with randoms
+        for(var a = coordinates[0]; a < pattern.length + coordinates[0]; a++){
+            for(var b = coordinates[1]; b < pattern[0].length + coordinates[1]; b++){
+                console.log("deleting: " + a + ", " + b);
+                grid[a][b].tween({alpha: 0.0}, 1000);
+                grid[a][b].color(Crafty.math.randomElementOfArray(tileTypes));
+                grid[a][b].tween({alpha: 1.0}, 1000);
+            }
+        }
+        score++;
+        scoreboard.text(function(){ return score; });
+        pattern = getRandomPattern();
+        displayCurrentPattern();
+    }
+
+    //Status: Empty
+    //Calls whichever scene gets called when the puzzle is over
+    function endPuzzle(){
+        if(score < goal){
+            console.log("You failed. You are a terrible CDC agent. Try harder next time.");
+        }
+        else if(score == goal){
+            console.log("You have just managed to create the antigen in time.");
+        }
+        else{
+            var overage = score - goal;
+            console.log("You created "+overage+" extra units of antigen, granting "+(overage/2)+" days of immunity.");
+        }
+
+
+    }
+
+}); 
+
+
+Crafty.scene("puzzle_tutorial", function(){
+
+});
+
